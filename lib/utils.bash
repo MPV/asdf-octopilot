@@ -66,7 +66,7 @@ download_release() {
   version="$1"
   filename="$2"
 
-  url="$(get_download_url "${version}" "tarball")"
+  url="$(get_download_url "${version}" "binary")"
 
   echo "* Downloading $TOOL_NAME release $version from '${url}'..."
 
@@ -98,7 +98,7 @@ verify() {
   if ! command -v shasum &>/dev/null; then
     shasum_command=sha256sum
   fi
-  if ! (cd "${ASDF_DOWNLOAD_PATH}" && ${shasum_command} -c <(grep "$(get_tarball_filename "${version}")" "${checksum_path}")); then
+  if ! (cd "${ASDF_DOWNLOAD_PATH}" && ${shasum_command} -c <(grep "$(get_binary_filename "${version}")" "${checksum_path}")); then
     echo "checksum verification failed" >&2
     return 1
   fi
@@ -129,11 +129,11 @@ get_arch() {
   fi
 }
 
-get_tarball_filename() {
+get_binary_filename() {
   local -r version="$1"
   local -r platform="$(get_platform)"
   local -r arch="$(get_arch)"
-  echo "${TOOL_NAME}_${version}_${platform}_${arch}.tar.gz"
+  echo "${TOOL_NAME}_${version}_${platform}_${arch}"
 }
 
 get_checksum_filename() {
@@ -147,8 +147,8 @@ get_download_url() {
   local -r keyid="${3:-}"
 
   case "${type}" in
-  tarball)
-    local -r filename="$(get_tarball_filename "${version}")"
+  binary)
+    local -r filename="$(get_binary_filename "${version}")"
     ;;
   checksum)
     local -r filename="$(get_checksum_filename "${version}")"
