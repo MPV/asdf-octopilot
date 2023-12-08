@@ -5,7 +5,7 @@ set -euo pipefail
 GH_REPO="https://github.com/dailymotion-oss/octopilot"
 TOOL_NAME="octopilot"
 TOOL_TEST="octopilot --version"
-SKIP_VERIFY=${ASDF_SKIP_VERIFY:-"true"}
+SKIP_VERIFY=${ASDF_SKIP_VERIFY:-"false"}
 
 fail() {
   echo -e "asdf-$TOOL_NAME: $*"
