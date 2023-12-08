@@ -41,10 +41,50 @@ download_release() {
 	version="$1"
 	filename="$2"
 
-	url="$GH_REPO/archive/refs/tags/v${version}.tar.gz"
+	url="$(get_download_url "${version}")"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
+}
+
+get_filename() {
+  local -r version="$1"
+  local -r platform="$(get_platform)"
+  local -r arch="$(get_arch)"
+  echo "${TOOL_NAME}_${version}_${platform}_${arch}"
+}
+
+get_download_url() {
+  local -r version="$1"
+
+  local -r filename="$(get_filename "${version}")"
+
+  echo "${GH_REPO}/releases/download/v${version}/${filename}"
+}
+
+get_platform() {
+  local -r kernel="$(uname -s)"
+  if [[ $OSTYPE == "msys" || $kernel == "CYGWIN"* || $kernel == "MINGW"* ]]; then
+    echo windows
+  else
+    uname | tr '[:upper:]' '[:lower:]'
+  fi
+}
+
+get_arch() {
+  local -r machine="$(uname -m)"
+  OVERWRITE_ARCH=${ASDF_OVERWRITE_ARCH:-"false"}
+  if [[ $OVERWRITE_ARCH != "false" ]]; then
+    echo "$OVERWRITE_ARCH"
+  elif [[ $machine == "arm64" ]] || [[ $machine == "aarch64" ]]; then
+    echo "arm64"
+  elif [[ $machine == *"arm"* ]] || [[ $machine == *"aarch"* ]]; then
+    echo "arm"
+  elif [[ $machine == *"386"* ]]; then
+    echo "386"
+  else
+    echo "amd64"
+  fi
 }
 
 install_version() {
